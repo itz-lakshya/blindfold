@@ -67,7 +67,7 @@ You can now connect your Codeforces handle and let Blindfold know what you've al
 
 ---
 
-## How the recommendation works
+## Recommendation Algorithm 
 
 The basic idea is:
 
