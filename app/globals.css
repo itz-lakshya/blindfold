@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Core palette — warm parchment, deep olive, muted terracotta.
+     Kept as variables (rather than hard-coded in components) so the
+     whole system can be retuned from one place. */
+  --color-bg: #f4f0e8;
+  --color-surface: #fbf9f4;
+  --color-surface-2: #efe9dc;
+  --color-primary: #28352a;
+  --color-ink: #292722;
+  --color-muted: #777064;
+  --color-accent: #a65d3b;
+  --color-accent-soft: #e3cdba;
+  --color-border: #d9d2c5;
+  --color-rule: #e9e3d5;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--color-accent-soft);
+  color: var(--color-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Faint ruled-paper texture, used sparingly (hero panel only) to nod at
+   the "academic notebook" direction without turning into a pattern
+   library. Two thin lines per row so it reads as paper, not a grid. */
+.notebook-rule {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    var(--color-rule) 27px,
+    var(--color-rule) 28px
+  );
+}
+
+/* Numeric tabular alignment for ratings / contest ids wherever the mono
+   face is used for real data rather than decoration. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
