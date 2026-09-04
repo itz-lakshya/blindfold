@@ -7,13 +7,9 @@
 import { getProblemId } from "./utils";
 import { Problem, PracticeConfig, UserContext } from "./types";
 
-/**
- * Filter problems by rating and exclude previously seen/attempted problems.
- */
 export function filterEligibleProblems(
   problems: Problem[], 
-  minRating: number, 
-  maxRating: number,
+  config: PracticeConfig,
   context?: UserContext
 ): Problem[] {
   let solvedSet = new Set<string>();
@@ -26,9 +22,19 @@ export function filterEligibleProblems(
     seenSet = new Set(context.seenProblemIds || []);
   }
 
+  // Find max contest ID if we need to filter by recency limit
+  let maxContestId = 0;
+  if (config.maxAgeContests !== undefined) {
+    maxContestId = problems.reduce((max, p) => Math.max(max, p.contestId), 0);
+  }
+
   return problems.filter((p) => {
     if (typeof p.rating !== "number") return false;
-    if (p.rating < minRating || p.rating > maxRating) return false;
+    if (p.rating < config.minRating || p.rating > config.maxRating) return false;
+
+    if (config.maxAgeContests !== undefined) {
+      if (p.contestId < maxContestId - config.maxAgeContests) return false;
+    }
 
     const problemId = getProblemId(p.contestId, p.index);
     if (solvedSet.has(problemId)) return false;
@@ -39,9 +45,6 @@ export function filterEligibleProblems(
   });
 }
 
-/**
- * Newer problems get a slight modifier.
- */
 export function calculateRecencyWeight(contestId: number): number {
   if (contestId > 1800) return 1.50;
   if (contestId > 1400) return 1.35;
@@ -49,10 +52,6 @@ export function calculateRecencyWeight(contestId: number): number {
   return 1.00;
 }
 
-/**
- * Calculate the multiplier based on the strongest positive tag,
- * with minor adjustments for other tags.
- */
 export function calculateTopicWeight(tags: string[], tagBiases: Record<string, number>): number {
   let baseWeight = 1.0;
   
@@ -133,7 +132,7 @@ export function recommendProblem(problems: Problem[], config: PracticeConfig, us
     throw new Error("Invalid rating range.");
   }
 
-  const valid = filterEligibleProblems(problems, config.minRating, config.maxRating, userContext);
+  const valid = filterEligibleProblems(problems, config, userContext);
 
   if (valid.length === 0) {
     throw new Error("No unseen problems match your current configuration.");

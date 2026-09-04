@@ -14,6 +14,7 @@ export type PracticeConfig = {
   minRating: number;
   maxRating: number;
   tagBiases: Record<string, number>;
+  maxAgeContests?: number;
 };
 
 export type UserHistory = {
@@ -31,4 +32,3 @@ export type UserContext = {
   attemptedProblemIds: string[];
   seenProblemIds: string[];
 };
-

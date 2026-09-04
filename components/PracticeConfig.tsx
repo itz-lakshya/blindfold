@@ -6,7 +6,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RatingRange from "./RatingRange";
 import TagBias from "./TagBias";
 import CfHandleSync from "./CfHandleSync";
@@ -15,7 +15,10 @@ export type PracticeConfigState = {
   minRating: number;
   maxRating: number;
   tagBiases: Record<string, number>;
+  maxAgeContests?: number;
 };
+
+const CONFIG_STORAGE_KEY = "blindfold_practice_config";
 
 function Step({
   number,
@@ -45,12 +48,43 @@ export default function PracticeConfig() {
       "dp": 30,
       "graphs": 10,
     },
+    maxAgeContests: undefined,
   });
+  
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CONFIG_STORAGE_KEY);
+      if (saved) {
+        setConfig(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error("Failed to load config from storage");
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save to local storage whenever config changes
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+      } catch (e) {
+        console.error("Failed to save config to storage");
+      }
+    }
+  }, [config, isLoaded]);
 
   const qs = new URLSearchParams();
   qs.set("minRating", config.minRating.toString());
   qs.set("maxRating", config.maxRating.toString());
   
+  if (config.maxAgeContests !== undefined) {
+    qs.set("maxAgeContests", config.maxAgeContests.toString());
+  }
+
   const active = Object.entries(config.tagBiases).filter(([_, v]) => v !== 0);
   if (active.length > 0) {
     qs.set("tags", JSON.stringify(Object.fromEntries(active)));
@@ -78,7 +112,24 @@ export default function PracticeConfig() {
         />
       </Step>
 
-      <Step number="03" title="Tag emphasis">
+      <Step number="03" title="Recency limit">
+        <p className="mb-4 max-w-prose text-sm text-muted">
+          Only want modern problems? Restrict the pool to recent contests.
+        </p>
+        <select
+          value={config.maxAgeContests || "any"}
+          onChange={(e) => setConfig({ ...config, maxAgeContests: e.target.value === "any" ? undefined : parseInt(e.target.value, 10) })}
+          className="rounded-md border border-border bg-surface px-4 py-2 text-ink shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary w-full max-w-xs"
+        >
+          <option value="any">All contests</option>
+          <option value="20">Last 20 contests</option>
+          <option value="50">Last 50 contests</option>
+          <option value="100">Last 100 contests</option>
+          <option value="200">Last 200 contests</option>
+        </select>
+      </Step>
+
+      <Step number="04" title="Tag emphasis">
         <p className="mb-4 max-w-prose text-sm text-muted">
           Nudge the tags you want to see more of. Leave the rest at zero —
           you won&apos;t be told which ones actually showed up.
@@ -89,7 +140,7 @@ export default function PracticeConfig() {
         />
       </Step>
 
-      <Step number="04" title="Begin">
+      <Step number="05" title="Begin">
         <p className="mb-4 max-w-prose text-sm text-muted">
           Blindfold picks one problem in range, weighted by what you set
           above. The tags stay hidden until you decide to look them up

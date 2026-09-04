@@ -24,6 +24,9 @@ function PracticeContent() {
     const minRating = parseInt(searchParams.get("minRating") || "1500", 10);
     const maxRating = parseInt(searchParams.get("maxRating") || "1800", 10);
     let tagBiases = {};
+    const maxAgeParam = searchParams.get("maxAgeContests");
+    const maxAgeContests = maxAgeParam ? parseInt(maxAgeParam, 10) : undefined;
+
     const tagsParam = searchParams.get("tags");
     if (tagsParam) {
       try {
@@ -32,7 +35,7 @@ function PracticeContent() {
         console.error("Failed to parse tags", e);
       }
     }
-    return { minRating, maxRating, tagBiases };
+    return { minRating, maxRating, tagBiases, maxAgeContests };
   };
 
   const loadProblem = async () => {
