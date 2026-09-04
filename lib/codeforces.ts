@@ -1,4 +1,11 @@
-import { Problem } from "./types";
+/**
+ * Codeforces API integration layer.
+ * Handles fetching the global problemset and individual user submission histories,
+ * keeping a lightweight in-memory cache to prevent rate-limiting.
+ */
+
+import { getProblemId } from "./utils";
+import { Problem, UserHistoryResponse } from "./types";
 
 const CF_API_URL = "https://codeforces.com/api/problemset.problems";
 
@@ -16,7 +23,7 @@ export async function getProblems(): Promise<Problem[]> {
   try {
     const res = await fetch(CF_API_URL, {
       next: { revalidate: 3600 }
-    });
+    } as any);
 
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
@@ -46,10 +53,69 @@ export async function getProblems(): Promise<Problem[]> {
     console.error("Failed to fetch problems:", err);
     
     if (cache) {
-      console.warn("Returning stale data.");
       return cache;
     }
     
     throw new Error(err instanceof Error ? err.message : "Unknown error");
+  }
+}
+
+/**
+ * Fetch Codeforces submission history and map to problem IDs.
+ */
+export async function getUserSubmissions(handle: string): Promise<UserHistoryResponse> {
+  if (!handle || handle.trim() === "") {
+    return { success: false, error: "Codeforces handle cannot be empty." };
+  }
+
+  const url = `https://codeforces.com/api/user.status?handle=${encodeURIComponent(handle.trim())}`;
+  
+  try {
+    const res = await fetch(url, {
+      next: { revalidate: 60 } 
+    } as any);
+
+    const data = await res.json();
+
+    if (data.status === "FAILED") {
+      return { success: false, error: data.comment || "Codeforces API rejected the request." };
+    }
+
+    if (data.status !== "OK" || !Array.isArray(data.result)) {
+      return { success: false, error: "Unexpected response format from Codeforces API." };
+    }
+
+    const solvedSet = new Set<string>();
+    const attemptedSet = new Set<string>();
+
+    for (const sub of data.result) {
+      if (!sub.problem || typeof sub.problem.contestId !== "number" || typeof sub.problem.index !== "string") {
+        continue;
+      }
+      
+      const problemId = getProblemId(sub.problem.contestId, sub.problem.index);
+      
+      attemptedSet.add(problemId);
+      
+      if (sub.verdict === "OK") {
+        solvedSet.add(problemId);
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        handle: handle.trim(),
+        solvedProblemIds: Array.from(solvedSet),
+        attemptedProblemIds: Array.from(attemptedSet),
+      }
+    };
+
+  } catch (err) {
+    console.error(`Error fetching submissions for ${handle}:`, err);
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "A network or API error occurred." 
+    };
   }
 }

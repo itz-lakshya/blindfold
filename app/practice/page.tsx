@@ -1,3 +1,8 @@
+/**
+ * The main Practice environment.
+ * Reads URL configs and local history, triggers recommendations, and renders the Problem Card.
+ */
+
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
@@ -5,7 +10,9 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ProblemCard from "@/components/ProblemCard";
 import { fetchRecommendation } from "./actions";
-import { Problem, PracticeConfig } from "@/lib/types";
+import { getProblemId } from "@/lib/utils";
+import { Problem, PracticeConfig, UserContext } from "@/lib/types";
+import { getSeenProblems, getCfHistory, markProblemSeen } from "@/lib/history";
 
 function PracticeContent() {
   const searchParams = useSearchParams();
@@ -32,11 +39,24 @@ function PracticeContent() {
     setLoading(true);
     setError(null);
     const config = getConfig();
-    const result = await fetchRecommendation(config);
+    
+    // Construct the UserContext from localStorage history layers
+    const cfHistory = getCfHistory();
+    const seenProblems = getSeenProblems();
+    
+    const context: UserContext = {
+      solvedProblemIds: cfHistory ? cfHistory.solvedProblemIds : [],
+      attemptedProblemIds: cfHistory ? cfHistory.attemptedProblemIds : [],
+      seenProblemIds: seenProblems,
+    };
+
+    const result = await fetchRecommendation(config, context);
     if (result.error) {
       setError(result.error);
     } else if (result.problem) {
       setProblem(result.problem);
+      // Mark as seen immediately upon successful selection/display
+      markProblemSeen(getProblemId(result.problem.contestId, result.problem.index));
     }
     setLoading(false);
   };

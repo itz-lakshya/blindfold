@@ -1,126 +1,128 @@
 # Blindfold
 
-A Codeforces practice tool that recommends problems within a rating range while giving selected tags a higher or lower probability of being chosen — **without revealing the problem's rating or tags by default.**
+A Codeforces practice tool that gives you a random problem from your chosen rating range — while quietly giving more chances to the topics you actually want to practice.
 
-The idea is simple:
+The catch?
 
-> **Practice without knowing what you're practicing.**
+**You don't get to know what you're practicing.** 👀
 
-Blindfold uses a **weighted recommendation engine** rather than simply picking a random problem. You choose a rating range and assign biases to topics you want to practice more or less. The recommendation engine then uses those preferences to influence which eligible problem gets selected while keeping the process probabilistic.
+No rating. No tags. Just the problem.
 
-## Status
+You can reveal them whenever you want.
 
-**V1 — Working**
+---
 
-The current V1 includes:
+## What makes Blindfold different?
 
-* Next.js App Router + TypeScript + Tailwind CSS
-* Warm editorial visual design system
-* Rating-range configuration
-* Codeforces problem fetching and normalization
-* Tag-bias configuration
-* Weighted problem recommendation engine
-* Rating-based filtering
-* Tag-preference weighting
-* Recency preference for newer Codeforces problems
-* Weighted random selection
-* Practice screen with hidden problem rating
-* Optional rating reveal
-* Optional tag reveal
-* Skip/recommend-again functionality
-
-### Recommendation flow
+Normally, when you open Codeforces and see:
 
 ```text
-User configuration
-       │
-       ├── Rating range
-       └── Tag preferences
-              │
-              ▼
-       Eligible problems
-              │
-              ▼
-        Topic weighting
-              │
-              ▼
-        Recency weighting
-              │
-              ▼
-      Weighted random choice
-              │
-              ▼
-       Selected problem
-              │
-              ▼
-     Practice without spoilers
+1700
+dp, greedy, math
 ```
 
-The recommendation engine lives separately from the UI in:
+your brain already starts thinking about the solution before you've even properly read the problem.
+
+Blindfold tries to remove that.
+
+You choose what you want to practice, Blindfold does the selection in the background, and you just get the problem.
+
+The recommendation isn't completely random either.
+
+If you tell Blindfold:
 
 ```text
-lib/recommender.ts
+Bitmasks   +75%
+DP         +50%
+Greedy     -20%
 ```
 
-Codeforces data fetching and normalization lives in:
+then Bitmask problems become more likely to appear, while the system still keeps some randomness.
+
+So you know **what you want to practice**, but you don't necessarily know **which problem was picked because of it**.
+
+---
+
+## V2 is here 🚀
+
+**V2 builds on the V1 recommendation system and adds personalization.**
+
+You can now connect your Codeforces handle and let Blindfold know what you've already worked on.
+
+### V2 includes:
+
+* 🎯 Rating-range based recommendations
+* 🧠 Custom tag biasing from **-75% to +75%**
+* 🎲 Weighted random problem selection
+* 🏷️ Smarter handling of problems with multiple tags
+* 🕐 Preference for newer Codeforces problems
+* 🚫 Excludes problems you've already solved or attempted on Codeforces
+* 🚫 Excludes problems *Blindfold has already shown you*
+* 👤 Codeforces handle integration
+* 🔄 Manual Codeforces history sync
+* 👀 Rating hidden by default
+* 🏷️ Tags hidden by default
+* ⏭️ Skip and get another problem
+* 💾 *Local Blindfold practice history*
+
+---
+
+## How the recommendation works
+
+The basic idea is:
 
 ```text
-lib/codeforces.ts
+All Codeforces problems
+          ↓
+   Your rating range
+          ↓
+ Remove solved problems
+          ↓
+Remove attempted problems
+          ↓
+Remove Blindfold-seen problems
+          ↓
+   Apply tag preferences
+          ↓
+     Add recency bias
+          ↓
+    Calculate weights
+          ↓
+    Weighted random pick
+          ↓
+       Your problem
 ```
 
-Shared TypeScript types live in:
+The important part is the last step.
 
-```text
-lib/types.ts
-```
+Blindfold **doesn't simply pick the problem with the highest weight**.
 
-This separation is intentional so the recommendation system can become more sophisticated in later versions without coupling it to the frontend.
+Instead, every problem gets a chance based on its weight.
 
-## Getting started
+So if one problem has a weight of `10` and another has a weight of `2`, the first one is much more likely to be picked — but it isn't guaranteed.
 
-```bash
-npm install
-npm run dev
-```
+That's what lets Blindfold respect your preferences without turning every session into the exact same type of problem.
 
-Then open:
+---
 
-```text
-http://localhost:3000
-```
+## Codeforces history
 
-To check the production build:
+When you sync your Codeforces handle, Blindfold fetches your submission history and figures out which problems you've:
 
-```bash
-npm run build
-npm start
-```
+* solved
+* attempted
 
-## Design system
+That information is then used to avoid recommending problems you've already worked on.
 
-Blindfold intentionally avoids the typical developer-tool aesthetic of dark backgrounds, neon blue/purple gradients, glowing cards, and excessive glassmorphism.
+Blindfold doesn't need to contact Codeforces every time you click **Find Problem** or **Skip**.
 
-The visual direction is inspired by:
+Your synced history is reused locally, and you can sync again whenever you want.
 
-* editorial design
-* academic notebooks
-* competitive programming tools
-* warm paper/parchment
-* restrained, premium interfaces
+---
 
-The primary palette uses:
+## V2 architecture
 
-* warm parchment/off-white backgrounds
-* deep olive for structure
-* espresso/dark brown for text
-* muted terracotta for accents
-* subtle warm borders
-
-Typography pairs **Newsreader** for editorial headlines with **IBM Plex Sans** for interface text and **IBM Plex Mono** for actual data such as ratings, contest IDs, and percentages.
-
-Colors and typography are defined through the project's global styling system.
-
-## Project structure
+The recommendation logic is kept separate from the UI so we can keep improving it without turning the whole project into spaghetti.
 
 ```text
 blindfold/
@@ -139,18 +141,56 @@ blindfold/
 ├── lib/
 │   ├── codeforces.ts
 │   ├── recommender.ts
+│   ├── history.ts
 │   └── types.ts
 │
 ├── public/
-├── package.json
 └── README.md
 ```
 
-## Vision
+---
 
-Blindfold is intentionally being developed in versions rather than trying to build the entire system at once.
-So expect some more versions and cool features form us in near future bro. 
+## Getting started
 
-##### MEET V1 for now. 
+Clone the repo and install everything:
 
-Future versions will be built on this foundation with features such as personal Codeforces history, solved-problem filtering, better difficulty targeting, practice sessions, analytics, and adaptive recommendations.
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Then open:
+
+```text
+http://localhost:3000
+```
+
+For a production build:
+
+```bash
+npm run build
+npm start
+```
+
+---
+
+## The vision
+
+Blindfold is intentionally being developed in versions rather than trying to build the entire system at once. So expect some more versions and cool features form us in near future.
+
+**V1** was about getting the core idea working.
+
+**V2** is about making those recommendations actually personal.
+
+And yeah...
+
+**this is still just the beginning.** ;)
+
+More versions, more weird ideas, and hopefully a much smarter Blindfold coming soon.
+
+### **MEET V2. 🥂**

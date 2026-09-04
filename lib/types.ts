@@ -1,3 +1,7 @@
+/**
+ * Global TypeScript interfaces and types.
+ */
+
 export type Problem = {
   contestId: number;
   index: string;
@@ -11,3 +15,20 @@ export type PracticeConfig = {
   maxRating: number;
   tagBiases: Record<string, number>;
 };
+
+export type UserHistory = {
+  handle: string;
+  solvedProblemIds: string[];
+  attemptedProblemIds: string[];
+};
+
+export type UserHistoryResponse = 
+  | { success: true; data: UserHistory }
+  | { success: false; error: string };
+
+export type UserContext = {
+  solvedProblemIds: string[];
+  attemptedProblemIds: string[];
+  seenProblemIds: string[];
+};
+

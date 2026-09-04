@@ -1,9 +1,15 @@
+/**
+ * The homepage configuration section.
+ * Wraps the rating range, tag sliders, and CF sync into a cohesive step-by-step UI.
+ */
+
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
 import RatingRange from "./RatingRange";
 import TagBias from "./TagBias";
+import CfHandleSync from "./CfHandleSync";
 
 export type PracticeConfigState = {
   minRating: number;
@@ -57,7 +63,14 @@ export default function PracticeConfig() {
       id="configure"
       className="rounded-lg border border-border bg-surface px-6 py-2 sm:px-10"
     >
-      <Step number="01" title="Rating range">
+      <Step number="01" title="Personalization">
+        <p className="mb-4 max-w-prose text-sm text-muted">
+          Provide your Codeforces handle to ensure Blindfold only recommends problems you haven't worked on.
+        </p>
+        <CfHandleSync />
+      </Step>
+
+      <Step number="02" title="Rating range">
         <RatingRange 
           min={config.minRating} 
           max={config.maxRating} 
@@ -65,7 +78,7 @@ export default function PracticeConfig() {
         />
       </Step>
 
-      <Step number="02" title="Tag emphasis">
+      <Step number="03" title="Tag emphasis">
         <p className="mb-4 max-w-prose text-sm text-muted">
           Nudge the tags you want to see more of. Leave the rest at zero —
           you won&apos;t be told which ones actually showed up.
@@ -76,7 +89,7 @@ export default function PracticeConfig() {
         />
       </Step>
 
-      <Step number="03" title="Begin">
+      <Step number="04" title="Begin">
         <p className="mb-4 max-w-prose text-sm text-muted">
           Blindfold picks one problem in range, weighted by what you set
           above. The tags stay hidden until you decide to look them up
