@@ -120,10 +120,7 @@ export default function PracticeConfig() {
       </Step>
 
       <Step number="03" title="Difficulty targeting">
-        <p className="mb-4 max-w-prose text-sm text-muted">
-          Where inside your selected rating range should we concentrate?
-        </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-3">
           {(["balanced", "harder", "much_harder"] as const).map(d => (
             <button
               key={d}
@@ -138,6 +135,11 @@ export default function PracticeConfig() {
             </button>
           ))}
         </div>
+        <p className="text-sm italic text-muted max-w-prose">
+          {(!config.difficulty || config.difficulty === "balanced") && "Keep difficulty broadly balanced across your rating range."}
+          {config.difficulty === "harder" && "Favor problems closer to the top of your rating range."}
+          {config.difficulty === "much_harder" && "Strongly favor the harder end of your range."}
+        </p>
       </Step>
 
       <Step number="04" title="Recency limit">

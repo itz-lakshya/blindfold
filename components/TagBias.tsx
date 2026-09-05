@@ -1,3 +1,8 @@
+/**
+ * Component for selecting topic biases (e.g., how much to favor DP or Graphs).
+ * Renders HTML5 range sliders that map from -75% to +75%.
+ */
+
 "use client";
 
 const CF_TAGS = [

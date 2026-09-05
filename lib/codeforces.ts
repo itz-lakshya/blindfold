@@ -13,6 +13,11 @@ let cache: Problem[] | null = null;
 let lastFetch = 0;
 const TTL = 60 * 60 * 1000;
 
+/**
+ * Fetches the entire global problemset from Codeforces.
+ * Caches the result in memory for 1 hour to prevent spamming the CF API
+ * every time a user requests a new recommendation.
+ */
 export async function getProblems(): Promise<Problem[]> {
   const now = Date.now();
   
@@ -61,7 +66,9 @@ export async function getProblems(): Promise<Problem[]> {
 }
 
 /**
- * Fetch Codeforces submission history and map to problem IDs.
+ * Fetches a specific user's submission history from Codeforces.
+ * Automatically sorts their submissions into 'solved' and 'attempted' buckets
+ * using stable problem IDs (e.g. "1829G") for easy exclusion during recommendation.
  */
 export async function getUserSubmissions(handle: string): Promise<UserHistoryResponse> {
   if (!handle || handle.trim() === "") {

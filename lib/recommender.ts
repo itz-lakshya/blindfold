@@ -5,8 +5,13 @@
  */
 
 import { getProblemId } from "./utils";
-import { Problem, PracticeConfig, UserContext } from "./types";
+import { Problem, PracticeConfig, UserContext, DifficultyPreference } from "./types";
 
+/**
+ * Prunes the full problemset down to only eligible problems.
+ * Strips out problems outside the rating range, outside the recency limit, 
+ * or anything the user has already solved, attempted, or seen.
+ */
 export function filterEligibleProblems(
   problems: Problem[], 
   config: PracticeConfig,
@@ -45,6 +50,10 @@ export function filterEligibleProblems(
   });
 }
 
+/**
+ * Grants a slight probability multiplier to newer problems.
+ * Codeforces contest IDs roughly correlate with time (higher = newer).
+ */
 export function calculateRecencyWeight(contestId: number): number {
   if (contestId > 1800) return 1.50;
   if (contestId > 1400) return 1.35;
@@ -52,6 +61,11 @@ export function calculateRecencyWeight(contestId: number): number {
   return 1.00;
 }
 
+/**
+ * Calculates a probabilistic weight based on the user's tag preferences.
+ * The strongest positively biased tag dominates the score, while other
+ * positive tags add minor bonuses and negative tags apply minor penalties.
+ */
 export function calculateTopicWeight(tags: string[], tagBiases: Record<string, number>): number {
   let baseWeight = 1.0;
   
@@ -94,12 +108,58 @@ export function calculateTopicWeight(tags: string[], tagBiases: Record<string, n
   return Math.max(0.1, finalTopicWeight);
 }
 
-export function calculateProblemWeight(problem: Problem, tagBiases: Record<string, number>): number {
-  const topicWeight = calculateTopicWeight(problem.tags || [], tagBiases);
-  const recencyWeight = calculateRecencyWeight(problem.contestId || 0);
-  return topicWeight * recencyWeight;
+/**
+ * Adjusts the probability of selecting a problem based on its difficulty.
+ * Applies a linear or exponential multiplier to favor problems closer to 
+ * the top of the user's selected rating range.
+ */
+export function calculateDifficultyWeight(
+  rating: number | undefined,
+  minRating: number,
+  maxRating: number,
+  difficulty?: DifficultyPreference
+): number {
+  if (rating === undefined) return 1.0;
+  if (difficulty === "balanced" || !difficulty) return 1.0;
+  if (minRating >= maxRating) return 1.0;
+
+  const normalized = (rating - minRating) / (maxRating - minRating);
+
+  if (difficulty === "harder") {
+    // Linear scale from 1.0 (minRating) to 4.0 (maxRating)
+    return 1.0 + normalized * 3.0;
+  }
+
+  if (difficulty === "much_harder") {
+    // Exponential scale from 1.0 (minRating) to 10.0 (maxRating)
+    return 1.0 + Math.pow(normalized, 2) * 9.0;
+  }
+
+  return 1.0;
 }
 
+/**
+ * The master combination function that calculates the final weight for a problem
+ * by multiplying its topic, recency, and difficulty scores together.
+ */
+export function calculateProblemWeight(problem: Problem, config: PracticeConfig): number {
+  const topicWeight = calculateTopicWeight(problem.tags || [], config.tagBiases || {});
+  const recencyWeight = calculateRecencyWeight(problem.contestId || 0);
+  const difficultyWeight = calculateDifficultyWeight(
+    problem.rating,
+    config.minRating,
+    config.maxRating,
+    config.difficulty
+  );
+  
+  return topicWeight * recencyWeight * difficultyWeight;
+}
+
+/**
+ * Performs a weighted random selection over an array of items.
+ * Items with higher weights have a mathematically higher probability of being chosen,
+ * but lower-weighted items still retain a chance of winning.
+ */
 export function weightedRandom<T>(items: T[], weights: number[]): T {
   let total = 0;
   for (const w of weights) {
@@ -123,6 +183,11 @@ export function weightedRandom<T>(items: T[], weights: number[]): T {
   return items[items.length - 1];
 }
 
+/**
+ * The primary entry point for the recommendation engine.
+ * Filters the raw problemset, calculates weights for all eligible candidates, 
+ * and randomly selects the final problem.
+ */
 export function recommendProblem(problems: Problem[], config: PracticeConfig, userContext?: UserContext): Problem {
   if (!problems || problems.length === 0) {
     throw new Error("No problems provided.");
@@ -140,7 +205,7 @@ export function recommendProblem(problems: Problem[], config: PracticeConfig, us
 
   const weights: number[] = new Array(valid.length);
   for (let i = 0; i < valid.length; i++) {
-    weights[i] = calculateProblemWeight(valid[i], config.tagBiases || {});
+    weights[i] = calculateProblemWeight(valid[i], config);
   }
 
   return weightedRandom(valid, weights);

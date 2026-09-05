@@ -1,3 +1,8 @@
+/**
+ * The landing page for Blindfold.
+ * Contains the hero section, the explanation of the philosophy, and embeds the configuration UI.
+ */
+
 import PracticeConfig from "@/components/PracticeConfig";
 
 // Illustrative widths for the "redacted" tag bars in the hero card.

@@ -1,3 +1,8 @@
+/**
+ * The root layout for the Next.js application.
+ * Loads global fonts, sets up the HTML shell, and imports global Tailwind CSS.
+ */
+
 import type { Metadata } from "next";
 import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";

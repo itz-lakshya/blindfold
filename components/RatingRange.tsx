@@ -1,3 +1,8 @@
+/**
+ * Component for selecting the minimum and maximum Codeforces rating.
+ * Ensures the minimum rating cannot exceed the maximum rating and vice versa.
+ */
+
 "use client";
 
 const RATING_FLOOR = 800;
