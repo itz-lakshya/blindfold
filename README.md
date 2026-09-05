@@ -1,14 +1,14 @@
 # Blindfold
 
-A Codeforces practice tool that gives you a random problem from your chosen rating range — while quietly giving more chances to the topics you actually want to practice.
+A Codeforces practice tool that gives you a random problem from your chosen rating range — while quietly giving more chances to the topics and difficulty you actually want to practice.
 
 The catch?
 
-**You don't get to know what you're practicing.** 👀
+**You decides what you get but blindfolded.** 👀
 
-No rating. No tags. Just the problem.
+You know the rating, tags but still you know nothing "JOHN SNOW".
 
-You can reveal them whenever you want.
+You have the power to reveal them whenever you want although.
 
 ---
 
@@ -18,6 +18,7 @@ Normally, when you open Codeforces and see:
 
 ```text
 1700
+
 dp, greedy, math
 ```
 
@@ -33,63 +34,88 @@ If you tell Blindfold:
 
 ```text
 Bitmasks   +75%
+
 DP         +50%
+
 Greedy     -20%
 ```
 
 then Bitmask problems become more likely to appear, while the system still keeps some randomness.
 
+You can also tell Blindfold how difficult you want the problems to be within your selected rating range.
+
 So you know **what you want to practice**, but you don't necessarily know **which problem was picked because of it**.
 
 ---
 
-## V2 is here 🚀
+## What's here? 🚀
 
-**V2 builds on the V1 recommendation system and adds personalization.**
-
-You can now connect your Codeforces handle and let Blindfold know what you've already worked on.
-
-### V2 includes:
+Blindfold includes:
 
 * 🎯 Rating-range based recommendations
 * 🧠 Custom tag biasing from **-75% to +75%**
+* 🎯 Difficulty targeting within your selected rating range
+* ⚖️ Balanced, Harder, and Much Harder difficulty preferences
 * 🎲 Weighted random problem selection
 * 🏷️ Smarter handling of problems with multiple tags
 * 🕐 Preference for newer Codeforces problems
 * 🚫 Excludes problems you've already solved or attempted on Codeforces
-* 🚫 Excludes problems *Blindfold has already shown you*
+* 🚫 Excludes problems **Blindfold has already shown you**
 * 👤 Codeforces handle integration
 * 🔄 Manual Codeforces history sync
 * 👀 Rating hidden by default
 * 🏷️ Tags hidden by default
 * ⏭️ Skip and get another problem
-* 💾 *Local Blindfold practice history*
+* 💾 **Local Blindfold practice history**
+* 💾 Persistent user configuration
 
 ---
 
-## Recommendation Algorithm 
+## Recommendation Algorithm
 
 The basic idea is:
 
 ```text
 All Codeforces problems
+
           ↓
+
    Your rating range
+
           ↓
+
  Remove solved problems
+
           ↓
+
 Remove attempted problems
+
           ↓
+
 Remove Blindfold-seen problems
+
           ↓
+
    Apply tag preferences
+
           ↓
+
+ Apply difficulty preference
+
+          ↓
+
      Add recency bias
+
           ↓
+
     Calculate weights
+
           ↓
+
     Weighted random pick
+
           ↓
+
        Your problem
 ```
 
@@ -102,6 +128,27 @@ Instead, every problem gets a chance based on its weight.
 So if one problem has a weight of `10` and another has a weight of `2`, the first one is much more likely to be picked — but it isn't guaranteed.
 
 That's what lets Blindfold respect your preferences without turning every session into the exact same type of problem.
+
+### Difficulty targeting
+
+Suppose you choose:
+
+```text
+Rating: 1500–1800
+Difficulty: Harder
+```
+
+Blindfold will still only consider problems between **1500 and 1800**, but problems closer to the harder end of that range receive more weight.
+
+With **Balanced**, the recommendation stays broadly distributed across the range.
+
+With **Harder** or **Much Harder**, the probability gradually shifts toward higher-rated problems.
+
+It is still weighted random selection though.
+
+So even with **Much Harder**, an easier problem can still show up.
+
+That's intentional.
 
 ---
 
@@ -120,31 +167,60 @@ Your synced history is reused locally, and you can sync again whenever you want.
 
 ---
 
-## V2 architecture
+## Blindfold history
+
+Blindfold also keeps track of the problems it has already shown you.
+
+If you skip a problem, it is added to your local Blindfold history so it won't keep coming back.
+
+This history is stored locally in your browser.
+
+So refreshing the page doesn't mean Blindfold suddenly forgets everything you've already seen.
+
+---
+
+## Architecture
 
 The recommendation logic is kept separate from the UI so we can keep improving it without turning the whole project into spaghetti.
 
 ```text
 blindfold/
+
 ├── app/
+
 │   ├── page.tsx
+
 │   ├── practice/
+
 │   │   └── page.tsx
+
 │   └── globals.css
+
 │
 ├── components/
+
 │   ├── PracticeConfig.tsx
+
 │   ├── RatingRange.tsx
+
 │   ├── TagBias.tsx
+
 │   └── ProblemCard.tsx
+
 │
 ├── lib/
+
 │   ├── codeforces.ts
+
 │   ├── recommender.ts
+
 │   ├── history.ts
+
 │   └── types.ts
+
 │
 ├── public/
+
 └── README.md
 ```
 
@@ -174,6 +250,7 @@ For a production build:
 
 ```bash
 npm run build
+
 npm start
 ```
 
@@ -181,16 +258,18 @@ npm start
 
 ## The vision
 
-Blindfold is intentionally being developed in versions rather than trying to build the entire system at once. So expect some more versions and cool features form us in near future.
+Blindfold started with a pretty simple idea:
 
-**V1** was about getting the core idea working.
+**What if Codeforces i could practise my weak topic but without without any spoiler of the problem's tags**
 
-**V2** is about making those recommendations actually personal.
+Since then, it's grown into something a little more personal — it remembers what you've already worked on, lets you control the topics and difficulty you want, and still keeps the actual recommendation unpredictable.
 
-And yeah...
+The goal isn't to remove control.
 
-**this is still just the beginning.** ;)
+It's to move the control **one step away from the problem itself.**
 
-More versions, more weird ideas, and hopefully a much smarter Blindfold coming soon.
+You decide the kind of practice you want.
 
-### **MEET V2. 🥂**
+**You decides what you get but blindfolded.**
+
+**### MEET BLINDFOLD. 🥂**
