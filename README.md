@@ -260,7 +260,7 @@ npm start
 
 Blindfold started with a pretty simple idea:
 
-**What if Codeforces i could practise my weak topic but without without any spoiler of the problem's tags**
+**What if Codeforces i could practise my weak topic but without any spoiler of the problem's tags**
 
 Since then, it's grown into something a little more personal — it remembers what you've already worked on, lets you control the topics and difficulty you want, and still keeps the actual recommendation unpredictable.
 
