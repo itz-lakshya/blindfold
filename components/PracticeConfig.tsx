@@ -10,12 +10,14 @@ import { useState, useEffect } from "react";
 import RatingRange from "./RatingRange";
 import TagBias from "./TagBias";
 import CfHandleSync from "./CfHandleSync";
+import { DifficultyPreference } from "@/lib/types";
 
 export type PracticeConfigState = {
   minRating: number;
   maxRating: number;
   tagBiases: Record<string, number>;
   maxAgeContests?: number;
+  difficulty?: DifficultyPreference;
 };
 
 const CONFIG_STORAGE_KEY = "blindfold_practice_config";
@@ -49,6 +51,7 @@ export default function PracticeConfig() {
       "graphs": 10,
     },
     maxAgeContests: undefined,
+    difficulty: "balanced",
   });
   
   const [isLoaded, setIsLoaded] = useState(false);
@@ -85,6 +88,10 @@ export default function PracticeConfig() {
     qs.set("maxAgeContests", config.maxAgeContests.toString());
   }
 
+  if (config.difficulty && config.difficulty !== "balanced") {
+    qs.set("difficulty", config.difficulty);
+  }
+
   const active = Object.entries(config.tagBiases).filter(([_, v]) => v !== 0);
   if (active.length > 0) {
     qs.set("tags", JSON.stringify(Object.fromEntries(active)));
@@ -112,7 +119,28 @@ export default function PracticeConfig() {
         />
       </Step>
 
-      <Step number="03" title="Recency limit">
+      <Step number="03" title="Difficulty targeting">
+        <p className="mb-4 max-w-prose text-sm text-muted">
+          Where inside your selected rating range should we concentrate?
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(["balanced", "harder", "much_harder"] as const).map(d => (
+            <button
+              key={d}
+              onClick={() => setConfig({ ...config, difficulty: d })}
+              className={`rounded border px-4 py-2 text-sm font-medium transition-colors ${
+                (config.difficulty || "balanced") === d
+                  ? "border-primary bg-primary text-surface"
+                  : "border-border bg-surface text-ink hover:border-primary"
+              }`}
+            >
+              {d === "balanced" ? "Balanced" : d === "harder" ? "Harder" : "Much Harder"}
+            </button>
+          ))}
+        </div>
+      </Step>
+
+      <Step number="04" title="Recency limit">
         <p className="mb-4 max-w-prose text-sm text-muted">
           Only want modern problems? Restrict the pool to recent contests.
         </p>
@@ -129,7 +157,7 @@ export default function PracticeConfig() {
         </select>
       </Step>
 
-      <Step number="04" title="Tag emphasis">
+      <Step number="05" title="Tag emphasis">
         <p className="mb-4 max-w-prose text-sm text-muted">
           Nudge the tags you want to see more of. Leave the rest at zero —
           you won&apos;t be told which ones actually showed up.
@@ -140,7 +168,7 @@ export default function PracticeConfig() {
         />
       </Step>
 
-      <Step number="05" title="Begin">
+      <Step number="06" title="Begin">
         <p className="mb-4 max-w-prose text-sm text-muted">
           Blindfold picks one problem in range, weighted by what you set
           above. The tags stay hidden until you decide to look them up

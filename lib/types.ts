@@ -10,11 +10,14 @@ export type Problem = {
   tags: string[];
 };
 
+export type DifficultyPreference = "balanced" | "harder" | "much_harder";
+
 export type PracticeConfig = {
   minRating: number;
   maxRating: number;
   tagBiases: Record<string, number>;
   maxAgeContests?: number;
+  difficulty?: DifficultyPreference;
 };
 
 export type UserHistory = {
