@@ -8,6 +8,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 import ProblemCard from "@/components/ProblemCard";
 import { fetchRecommendation } from "./actions";
 import { getProblemId } from "@/lib/utils";
@@ -111,12 +112,10 @@ export default function PracticePage() {
           <Link href="/" className="font-serif text-xl italic text-primary hover:opacity-80 transition-opacity">
             Blindfold
           </Link>
-          <Link
-            href="/#configure"
-            className="text-sm text-muted transition-colors hover:text-primary"
-          >
-            Configure session
-          </Link>
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:block"><ThemeSwitcher /></div>
+            <Link href="/#configure" className="text-sm text-muted transition-colors hover:text-primary">Configure session</Link>
+          </div>
         </div>
       </header>
 

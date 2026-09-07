@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Core palette — warm parchment, deep olive, muted terracotta.
-     Kept as variables (rather than hard-coded in components) so the
-     whole system can be retuned from one place. */
+  /* Default Theme: Warm Parchment (Original V1/V2) */
   --color-bg: #f4f0e8;
   --color-surface: #fbf9f4;
   --color-surface-2: #efe9dc;
@@ -15,7 +13,49 @@
   --color-accent: #a65d3b;
   --color-accent-soft: #e3cdba;
   --color-border: #d9d2c5;
-  --color-rule: #e9e3d5;
+  --color-rule: #d5ccb6; /* Deepened for visibility */
+}
+
+.theme-sage {
+  /* Sage / Ash */
+  --color-bg: #C8CAC5;
+  --color-surface: #D7D8D4;
+  --color-surface-2: #DCDCD8;
+  --color-primary: #26332C;
+  --color-ink: #252823;
+  --color-muted: #697069;
+  --color-accent: #A45E49;
+  --color-accent-soft: #D8B8AA;
+  --color-border: #B0B5AE;
+  --color-rule: #AEB3AB; /* Deepened for visibility */
+}
+
+.theme-onyx {
+  /* Ultra Dark / Onyx */
+  --color-bg: #000000;
+  --color-surface: #111111;
+  --color-surface-2: #1A1A1A;
+  --color-primary: #F5F5F5;
+  --color-ink: #D4D4D4;
+  --color-muted: #808080;
+  --color-accent: #E56B55;
+  --color-accent-soft: #3D241C;
+  --color-border: #2A2A2A;
+  --color-rule: #222222; /* Lightened for visibility */
+}
+
+.theme-dark {
+  /* Direction C: Dark Blindfold */
+  --color-bg: #151815;
+  --color-surface: #1D211D;
+  --color-surface-2: #242A24;
+  --color-primary: #DDE3D9;
+  --color-ink: #E8E9E5;
+  --color-muted: #929A91;
+  --color-accent: #B9684D;
+  --color-accent-soft: #42352F;
+  --color-border: #303630;
+  --color-rule: #252A25; /* Lightened for visibility */
 }
 
 * {
@@ -32,6 +72,7 @@ body {
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::selection {
@@ -58,21 +99,45 @@ body {
   }
 }
 
-/* Faint ruled-paper texture, used sparingly (hero panel only) to nod at
-   the "academic notebook" direction without turning into a pattern
-   library. Two thin lines per row so it reads as paper, not a grid. */
-.notebook-rule {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 27px,
-    var(--color-rule) 27px,
-    var(--color-rule) 28px
-  );
+/* Replaced notebook rule with a premium fade-out grid */
+.hero-bg {
+  z-index: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Numeric tabular alignment for ratings / contest ids wherever the mono
-   face is used for real data rather than decoration. */
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, var(--color-rule) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-rule) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 80%);
+}
+
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+.footer-bg {
+  z-index: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, var(--color-rule) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-rule) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse at 50% 100%, black 10%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 100%, black 10%, transparent 70%);
 }

@@ -7,11 +7,6 @@ import type { Metadata } from "next";
 import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-// Three roles, three faces:
-// - Newsreader carries the editorial voice (headlines, pull quotes).
-// - IBM Plex Sans runs the interface itself — labels, body copy, controls.
-// - IBM Plex Mono is reserved for things that are actually data:
-//   ratings, contest ids, percentages. Not decoration.
 const display = Newsreader({
   subsets: ["latin"],
   style: ["normal", "italic"],
@@ -46,7 +41,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${data.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${data.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            try {
+              const theme = localStorage.getItem('blindfold_theme');
+              if (theme && theme !== 'default') {
+                document.documentElement.classList.add('theme-' + theme);
+              }
+            } catch (e) {}
+          `
+        }} />
+      </head>
       <body>{children}</body>
     </html>
   );

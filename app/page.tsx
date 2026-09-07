@@ -4,6 +4,7 @@
  */
 
 import PracticeConfig from "@/components/PracticeConfig";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 // Illustrative widths for the "redacted" tag bars in the hero card.
 // These are purely decorative — they represent the idea of hidden tags,
@@ -33,7 +34,7 @@ export default function HomePage() {
         {/* ---------------------------------------------------------- */}
         {/* Hero                                                       */}
         {/* ---------------------------------------------------------- */}
-        <section className="notebook-rule border-b border-border">
+        <section className="hero-bg border-b border-border">
           <div className="container grid grid-cols-1 gap-14 py-20 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-28">
             <div>
               <h1 className="max-w-lg font-serif text-4xl leading-[1.15] text-primary sm:text-5xl">
@@ -128,9 +129,10 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-border">
+      <footer className="footer-bg border-t border-border">
         <div className="container flex flex-col gap-2 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
           <span>Blindfold</span>
+          <ThemeSwitcher />
           <span>
             Problems are sourced from{" "}
             <a
