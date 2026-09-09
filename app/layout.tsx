@@ -13,6 +13,7 @@ const display = Newsreader({
   weight: ["400", "500", "600"],
   variable: "--font-display",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 const body = IBM_Plex_Sans({
@@ -20,6 +21,7 @@ const body = IBM_Plex_Sans({
   weight: ["400", "500", "600"],
   variable: "--font-body",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 const data = IBM_Plex_Mono({
@@ -27,6 +29,7 @@ const data = IBM_Plex_Mono({
   weight: ["400", "500"],
   variable: "--font-data",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
