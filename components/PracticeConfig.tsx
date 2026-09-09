@@ -106,7 +106,7 @@ export default function PracticeConfig() {
     >
       <Step number="01" title="Personalization">
         <p className="mb-4 max-w-prose text-sm text-muted">
-          Provide your Codeforces handle to ensure Blindfold only recommends problems you haven't worked on.
+          Provide your Codeforces handle to ensure Blindfold only recommends problems you haven&apos;t worked on.
         </p>
         <CfHandleSync />
       </Step>

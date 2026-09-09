@@ -70,6 +70,7 @@ function PracticeContent() {
 
   useEffect(() => {
     loadProblem();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   return (
